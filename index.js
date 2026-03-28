@@ -29,10 +29,11 @@ const methods = {
 function memoized(opts) {
   const cacheOpts = Object.assign(
     {
-      primitive: true,
       normalizer: JSON.stringify,
       maxAge: 1000 * 60 * 5, // cache for 5 minutes
       max: 1000, // save up to 1k results to avoid memory issues
+      // All scraper methods return Promises; memoizee needs this for correct deduping/caching
+      promise: true,
     },
     opts
   );

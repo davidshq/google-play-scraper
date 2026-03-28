@@ -13,6 +13,8 @@ describe('Categories method', () => {
   it('should have all categories from constant list of categories', () => {
     return gplay.categories().then((categories) => {
       const categoriesConst = Object.keys(gplay.category);
+      // Play must not surface category ids we do not list in lib/constants.js — if this fails,
+      // add the new id to `category` there (or adjust scraping if the page shape changed).
       expect(R.difference(categories, categoriesConst)).toEqual([]);
     });
   });

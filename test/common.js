@@ -23,7 +23,7 @@ function assertValidApp(app) {
 
   expect(app.free).toBeTypeOf('boolean');
 
-  // FIXME this is only allowed for preregister, check for that when field is available
+  // Pre-register and some edge listings omit or reshape price copy; only assert when present.
   if (app.priceText !== undefined) {
     expect(app.priceText).toBeTypeOf('string');
   }

@@ -4,10 +4,10 @@ This document describes how to support **two search backends**, how **charts** f
 
 ## Context
 
-| Approach | Endpoint / mechanism | Strengths | Weaknesses |
-|----------|----------------------|-----------|------------|
-| **Store search** (current default) | `/store/search?c=apps&…&price=…` + `ds:4` HTML parsing | **`price`** (`free` / `paid` / `all`) matches consumer Play Store | ~**30** results per query without further pagination research |
-| **Work search** (upstream pattern) | `/work/search` + `qnKhOb` batchexecute | Up to **~250** results | **Price filter** ineffective (Play for Work catalog skews free) |
+| Approach                           | Endpoint / mechanism                                   | Strengths                                                         | Weaknesses                                                      |
+| ---------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Store search** (current default) | `/store/search?c=apps&…&price=…` + `ds:4` HTML parsing | **`price`** (`free` / `paid` / `all`) matches consumer Play Store | ~**30** results per query without further pagination research   |
+| **Work search** (upstream pattern) | `/work/search` + `qnKhOb` batchexecute                 | Up to **~250** results                                            | **Price filter** ineffective (Play for Work catalog skews free) |
 
 ---
 
@@ -51,13 +51,13 @@ This document describes how to support **two search backends**, how **charts** f
 
 Ways to find apps **without** text search, or to **expand** from a seed:
 
-| Method | Role |
-|--------|------|
-| **`similar({ appId })`** | Similar apps/games from the app detail surface |
-| **`developer({ devId })`** | All apps from a publisher (`developerId` from `app()` or list/search rows) |
-| **`list({ collection, category })`** | Top charts by segment |
-| **`suggest({ term })`** | Autocomplete strings → more search queries |
-| **`app({ appId })`** | Full detail; pivots to `developer`, genre, category for `list` |
+| Method                               | Role                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| **`similar({ appId })`**             | Similar apps/games from the app detail surface                             |
+| **`developer({ devId })`**           | All apps from a publisher (`developerId` from `app()` or list/search rows) |
+| **`list({ collection, category })`** | Top charts by segment                                                      |
+| **`suggest({ term })`**              | Autocomplete strings → more search queries                                 |
+| **`app({ appId })`**                 | Full detail; pivots to `developer`, genre, category for `list`             |
 
 **Optional helper (future):** e.g. `discover({ seedAppId, maxApps })` — merge `similar` + `developer` + optional `list` with dedupe by `appId` (or document a cookbook example instead of a new API).
 
