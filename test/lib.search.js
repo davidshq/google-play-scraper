@@ -1,6 +1,21 @@
 import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
+import { getPriceGoogleValue } from '../lib/search.js';
 import { assertValidApp } from './common.js';
+
+describe('getPriceGoogleValue', () => {
+  it('accepts documented string filters', () => {
+    expect(getPriceGoogleValue('free')).toBe(1);
+    expect(getPriceGoogleValue('paid')).toBe(2);
+    expect(getPriceGoogleValue('all')).toBe(0);
+    expect(getPriceGoogleValue(' FREE ')).toBe(1);
+  });
+
+  it('does not throw on non-string price (treated as all)', () => {
+    expect(getPriceGoogleValue(2)).toBe(0);
+    expect(getPriceGoogleValue(null)).toBe(0);
+  });
+});
 
 describe('Search method', () => {
   it('should fetch a valid application list', () => {

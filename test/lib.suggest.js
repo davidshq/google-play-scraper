@@ -2,6 +2,12 @@ import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
 
 describe('Suggest method', () => {
+  it('rejects when opts or term is missing', () =>
+    Promise.all([
+      expect(gplay.suggest(undefined)).rejects.toThrow('term missing'),
+      expect(gplay.suggest({})).rejects.toThrow('term missing'),
+    ]));
+
   it('should return five suggestion for a common term', () =>
     gplay.suggest({ term: 'p' }).then((results) => {
       expect(results.length).toBe(5);
