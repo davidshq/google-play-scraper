@@ -1,4 +1,4 @@
-import { assert } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { assertValidApp, assertValidUrl } from './common.js';
 import validator from 'validator';
 import gplay from '../index.js';
@@ -6,227 +6,250 @@ import gplay from '../index.js';
 describe('List method', () => {
   const timeout = 20 * 1000;
 
-  it('should throw an error if the given collection does not exist', () => {
-    const collection = gplay.collection.TRENDING;
+  it(
+    'should fetch a valid application list for the TRENDING collection',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.TRENDING,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp));
+    },
+    timeout
+  );
 
-    return gplay
-      .list({
-        collection,
-        num: 100,
-      })
-      .catch((error) => {
-        assert.equal(
-          error.message,
-          `The collection ${collection} is invalid for the given category, top apps or new apps`
-        );
-      });
-  });
+  it(
+    'should fetch a valid application list for NEW_FREE with BUSINESS category',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.NEW_FREE,
+          category: gplay.category.BUSINESS,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.forEach((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should throw an error if the given collection exists but have no clusters', () => {
-    const collection = gplay.collection.NEW_FREE;
+  it(
+    'should fetch a valid application list for the top free collection',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.TOP_FREE,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-    return gplay
-      .list({
-        collection,
-        category: gplay.category.BUSINESS,
-        num: 100,
-      })
-      .catch((error) => {
-        assert.equal(
-          error.message,
-          `The collection ${collection} is invalid for the given category, top apps or new apps`
-        );
-      });
-  });
+  it(
+    'should fetch a valid application list for the top paid collection',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.TOP_PAID,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => {
+          // Play occasionally surfaces $0 / trial rows; require a paid majority.
+          const paidCount = apps.filter((app) => !app.free).length;
+          expect(paidCount).toBeGreaterThanOrEqual(
+            Math.ceil(apps.length * 0.5)
+          );
+        });
+    },
+    timeout
+  );
 
-  it('should fetch a valid application list for the top free collection', () => {
-    return gplay
-      .list({
-        collection: gplay.collection.TOP_FREE,
-        num: 100,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
+  it(
+    'should fetch a valid application list for the new free collection',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.NEW_FREE,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should fetch a valid application list for the top paid collection', () => {
-    return gplay
-      .list({
-        collection: gplay.collection.TOP_PAID,
-        num: 100,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => {
-        // Play occasionally surfaces $0 / trial rows; require a paid majority.
-        const paidCount = apps.filter((app) => !app.free).length;
-        assert.isAtLeast(
-          paidCount,
-          Math.ceil(apps.length * 0.5),
-          'expected most TOP_PAID rows to be non-free'
-        );
-      });
-  }).timeout(timeout);
+  it(
+    'should fetch a valid application list for the new games free collection',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.NEW_FREE_GAMES,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should fetch a valid application list for the new free collection', () => {
-    return gplay
-      .list({
-        collection: gplay.collection.NEW_FREE,
-        num: 100,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
+  it(
+    'should fetch a valid application on a given collection regardless of the language',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.TOP_FREE,
+          country: 'ru',
+          lang: 'ru',
+          num: 5,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should fetch a valid application list for the new games free collection', () => {
-    return gplay
-      .list({
-        collection: gplay.collection.NEW_FREE_GAMES,
-        num: 100,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
+  it(
+    'should fetch a valid application list for the given category and collection',
+    () => {
+      return gplay
+        .list({
+          category: gplay.category.GAME_ACTION,
+          collection: gplay.collection.TOP_FREE,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should fetch a valid application on a given collection regardless of the language', () => {
-    return gplay
-      .list({
-        collection: gplay.collection.TOP_FREE,
-        country: 'ru',
-        lang: 'ru',
-        num: 5,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
+  it(
+    'should fetch a valid application list for the new free collection and GAME category',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.NEW_FREE,
+          category: gplay.category.GAME,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should fetch a valid application list for the given category and collection', () => {
-    return gplay
-      .list({
-        category: gplay.category.GAME_ACTION,
-        collection: gplay.collection.TOP_FREE,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
+  it(
+    'should fetch a valid application list for NEW_PAID with FAMILY category',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.collection.NEW_PAID,
+          category: gplay.category.FAMILY,
+          num: 100,
+        })
+        .then((apps) => {
+          expect(apps.length).toBeGreaterThan(0);
+          apps.forEach(assertValidApp);
+        });
+    },
+    timeout
+  );
 
-  it('should fetch a valid application list for the new free collection and GAME category', () => {
-    return gplay
-      .list({
-        collection: gplay.collection.NEW_FREE,
-        category: gplay.category.GAME,
-        num: 100,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
+  it(
+    'should fetch apps for application list for the new free collection and FAMILY category',
+    () => {
+      return gplay
+        .list({
+          collection: gplay.category.NEW_FREE,
+          category: gplay.category.FAMILY,
+          num: 100,
+        })
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) => apps.map((app) => expect(app.free).toBe(true)));
+    },
+    timeout
+  );
 
-  it('should return error for application list for the new paid collection and FAMILY category', () => {
-    const collection = gplay.collection.NEW_PAID;
-
-    return gplay
-      .list({
-        collection,
-        category: gplay.category.FAMILY,
-        num: 100,
-      })
-      .catch((error) =>
-        assert.equal(
-          error.message,
-          `The collection ${collection} is invalid for the given category, top apps or new apps`
-        )
-      );
-  }).timeout(timeout);
-
-  it('should fetch apps for application list for the new free collection and FAMILY category', () => {
-    return gplay
-      .list({
-        collection: gplay.category.NEW_FREE,
-        category: gplay.category.FAMILY,
-        num: 100,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert(app.free)));
-  }).timeout(timeout);
-
-  it('should validate the category', () => {
-    return gplay
-      .list({
+  it('should validate the category', async () => {
+    await expect(
+      gplay.list({
         category: 'wrong',
         collection: gplay.collection.TOP_FREE,
       })
-      .then(assert.fail)
-      .catch((e) => assert.equal(e.message, 'Invalid category wrong'));
+    ).rejects.toMatchObject({ message: 'Invalid category wrong' });
   });
 
-  it('should validate the collection', () => {
-    return gplay
-      .list({
+  it('should validate the collection', async () => {
+    await expect(
+      gplay.list({
         category: gplay.category.GAME_ACTION,
         collection: 'wrong',
       })
-      .then(assert.fail)
-      .catch((e) => assert.equal(e.message, 'Invalid collection wrong'));
+    ).rejects.toMatchObject({ message: 'Invalid collection wrong' });
   });
 
-  it('should validate the age range', () => {
-    return gplay
-      .list({
+  it('should validate the age range', async () => {
+    await expect(
+      gplay.list({
         category: gplay.category.GAME_ACTION,
         collection: gplay.collection.TOP_FREE,
         age: 'elderly',
       })
-      .then(assert.fail)
-      .catch((e) => assert.equal(e.message, 'Invalid age range elderly'));
+    ).rejects.toMatchObject({ message: 'Invalid age range elderly' });
   });
 
-  it('should fetch apps with fullDetail', () => {
-    return gplay
-      .list({
-        category: gplay.category.GAME_ACTION,
-        collection: gplay.collection.TOP_FREE,
-        fullDetail: true,
-        num: 5,
-      })
-      .then((apps) => apps.map(assertValidApp))
-      .then((apps) =>
-        apps.forEach((app) => {
-          assert.isNumber(app.minInstalls);
-          assert.isNumber(app.reviews);
-
-          assert.isString(app.description);
-          assert.isString(app.descriptionHTML);
-          assert.isString(app.released);
-
-          assert.equal(app.genre, 'Action');
-          assert.equal(app.genreId, 'GAME_ACTION');
-
-          assert.isString(app.version || '');
-          assert.isString(app.size || '');
-          assert.isString(app.androidVersionText);
-          assert.isString(app.androidVersion);
-          assert.isString(app.contentRating);
-
-          assert.equal(app.priceText, 'Free');
-          assert(app.free);
-
-          assert.isString(app.developer);
-          assert.isString(app.developerId);
-          if (app.developerWebsite) {
-            assertValidUrl(app.developerWebsite);
-          }
-          assert(
-            validator.isEmail(app.developerEmail),
-            `${app.developerEmail} is not an email`
-          );
-
-          ['1', '2', '3', '4', '5'].map((v) =>
-            assert.property(app.histogram, v)
-          );
-          app.screenshots.map(assertValidUrl);
-          app.comments.map(assert.isString);
+  it(
+    'should fetch apps with fullDetail',
+    () => {
+      return gplay
+        .list({
+          category: gplay.category.GAME_ACTION,
+          collection: gplay.collection.TOP_FREE,
+          fullDetail: true,
+          num: 5,
         })
-      );
-  }).timeout(timeout);
+        .then((apps) => apps.map(assertValidApp))
+        .then((apps) =>
+          apps.forEach((app) => {
+            expect(app.minInstalls).toBeTypeOf('number');
+            expect(app.reviews).toBeTypeOf('number');
+
+            expect(app.description).toBeTypeOf('string');
+            expect(app.descriptionHTML).toBeTypeOf('string');
+            expect(app.released).toBeTypeOf('string');
+
+            expect(app.genre).toBe('Action');
+            expect(app.genreId).toBe('GAME_ACTION');
+
+            expect(app.version || '').toBeTypeOf('string');
+            expect(app.size || '').toBeTypeOf('string');
+            expect(app.androidVersionText).toBeTypeOf('string');
+            expect(app.androidVersion).toBeTypeOf('string');
+            expect(app.contentRating).toBeTypeOf('string');
+
+            expect(app.priceText).toBe('Free');
+            expect(app.free).toBe(true);
+
+            expect(app.developer).toBeTypeOf('string');
+            expect(app.developerId).toBeTypeOf('string');
+            if (app.developerWebsite) {
+              assertValidUrl(app.developerWebsite);
+            }
+            expect(validator.isEmail(app.developerEmail)).toBe(true);
+
+            ['1', '2', '3', '4', '5'].forEach((v) =>
+              expect(app.histogram).toHaveProperty(v)
+            );
+            app.screenshots.map(assertValidUrl);
+            app.comments.forEach((c) => expect(c).toBeTypeOf('string'));
+          })
+        );
+    },
+    timeout
+  );
 
   // fetch last page of new paid apps, which have a bigger chance of including
   // results with no downloads (less fields, prone to failures)
@@ -239,32 +262,44 @@ describe('List method', () => {
       })
       .then((apps) => apps.map(assertValidApp)));
 
-  it('It should not fail with apps with no downloads and fullDetail', () =>
-    gplay
-      .list({
-        category: gplay.category.GAME_ACTION,
-        collection: gplay.collection.TOP_FREE,
-        num: 10,
-        fullDetail: true,
-      })
-      .then((apps) => apps.map(assertValidApp))).timeout(timeout);
-
-  it('should be able to retreive a list for each category', () => {
-    const categoryIds = Object.keys(gplay.category);
-
-    const fetchCategory = (category) =>
+  it(
+    'It should not fail with apps with no downloads and fullDetail',
+    () =>
       gplay
         .list({
-          category,
+          category: gplay.category.GAME_ACTION,
           collection: gplay.collection.TOP_FREE,
           num: 10,
+          fullDetail: true,
         })
-        .catch(() => {
-          if (category !== gplay.category.WATCH_FACE) {
-            assert.equal(category, 0, 'invalid category');
-          }
-        });
+        .then((apps) => apps.map(assertValidApp)),
+    timeout
+  );
 
-    return Promise.all(categoryIds.map(fetchCategory));
-  }).timeout(200 * 1000);
+  it(
+    'should be able to retreive a list for each category',
+    () => {
+      const categoryIds = Object.keys(gplay.category);
+
+      const fetchCategory = (category) =>
+        gplay
+          .list({
+            category,
+            collection: gplay.collection.TOP_FREE,
+            num: 10,
+          })
+          .catch((err) => {
+            // WATCH_FACE may be unsupported for this collection; others must succeed
+            if (category === gplay.category.WATCH_FACE) {
+              return;
+            }
+            throw new Error(
+              `list() should succeed for category ${String(category)}: ${err.message}`
+            );
+          });
+
+      return Promise.all(categoryIds.map(fetchCategory));
+    },
+    200 * 1000
+  );
 });

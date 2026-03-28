@@ -1,5 +1,5 @@
+import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
-import { assert } from 'chai';
 import { assertValidApp, assertValidUrl } from './common.js';
 import validator from 'validator';
 
@@ -9,7 +9,7 @@ describe('Developer method', () => {
       .developer({ devId: 'Jam City, Inc.' })
       .then((apps) => apps.map(assertValidApp))
       .then((apps) =>
-        apps.map((app) => assert.equal(app.developer, 'Jam City, Inc.'))
+        apps.forEach((app) => expect(app.developer).toBe('Jam City, Inc.'))
       );
   });
 
@@ -20,7 +20,7 @@ describe('Developer method', () => {
       .then((apps) =>
         apps.forEach((app) => {
           if (app.developerId) {
-            assert.equal(app.developerId, '5700313618786177705');
+            expect(app.developerId).toBe('5700313618786177705');
           }
         })
       );
@@ -32,54 +32,55 @@ describe('Developer method', () => {
       .then((apps) => {
         // Just check that we get some apps, not a specific number
         // The number of available apps may change over time
-        assert.isTrue(apps.length > 0, 'should return at least one app');
+        expect(apps.length > 0).toBe(true);
       });
   });
 
-  it('should fetch a valid application list with full detail', () => {
-    return gplay
-      .developer({ devId: '5700313618786177705', num: 10, fullDetail: true })
-      .then((apps) => {
-        apps.forEach((app) => {
-          assert.isNumber(app.minInstalls);
-          // IF APP IS NOT RELEASED
-          // THIS MEANS THAT IT SHOULDN'T HAVE REVIEWS
-          if (app.released) {
-            assert.isNumber(app.reviews);
-          }
+  it(
+    'should fetch a valid application list with full detail',
+    () => {
+      return gplay
+        .developer({ devId: '5700313618786177705', num: 10, fullDetail: true })
+        .then((apps) => {
+          apps.forEach((app) => {
+            expect(app.minInstalls).toBeTypeOf('number');
+            // IF APP IS NOT RELEASED
+            // THIS MEANS THAT IT SHOULDN'T HAVE REVIEWS
+            if (app.released) {
+              expect(app.reviews).toBeTypeOf('number');
+            }
 
-          assert.isString(app.description);
-          assert.isString(app.descriptionHTML);
-          assert.isNumber(app.updated);
+            expect(app.description).toBeTypeOf('string');
+            expect(app.descriptionHTML).toBeTypeOf('string');
+            expect(app.updated).toBeTypeOf('number');
 
-          assert.hasAnyKeys(app, 'genre');
-          assert.hasAnyKeys(app, 'genreId');
+            expect(app).toHaveProperty('genre');
+            expect(app).toHaveProperty('genreId');
 
-          assert.isString(app.version || '');
-          assert.isString(app.size || '');
-          assert.isString(app.androidVersionText);
-          assert.isString(app.androidVersion);
-          assert.isString(app.contentRating);
+            expect(app.version || '').toBeTypeOf('string');
+            expect(app.size || '').toBeTypeOf('string');
+            expect(app.androidVersionText).toBeTypeOf('string');
+            expect(app.androidVersion).toBeTypeOf('string');
+            expect(app.contentRating).toBeTypeOf('string');
 
-          assert.hasAnyKeys(app, 'priceText');
-          assert.hasAnyKeys(app, 'free');
+            expect(app).toHaveProperty('priceText');
+            expect(app).toHaveProperty('free');
 
-          assert.isString(app.developer);
-          assert.isString(app.developerId);
-          if (app.developerWebsite) {
-            assertValidUrl(app.developerWebsite);
-          }
-          assert(
-            validator.isEmail(app.developerEmail),
-            `${app.developerEmail} is not an email`
-          );
+            expect(app.developer).toBeTypeOf('string');
+            expect(app.developerId).toBeTypeOf('string');
+            if (app.developerWebsite) {
+              assertValidUrl(app.developerWebsite);
+            }
+            expect(validator.isEmail(app.developerEmail)).toBe(true);
 
-          ['1', '2', '3', '4', '5'].map((v) =>
-            assert.property(app.histogram, v)
-          );
-          app.screenshots.map(assertValidUrl);
-          app.comments.map(assert.isString);
+            ['1', '2', '3', '4', '5'].forEach((v) =>
+              expect(app.histogram).toHaveProperty(v)
+            );
+            app.screenshots.map(assertValidUrl);
+            app.comments.forEach((c) => expect(c).toBeTypeOf('string'));
+          });
         });
-      });
-  }).timeout(15 * 1000);
+    },
+    15 * 1000
+  );
 });

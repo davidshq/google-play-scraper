@@ -1,39 +1,38 @@
-import { assert } from 'chai';
+import { expect } from 'vitest';
 import validator from 'validator';
 
 function assertValidUrl(url) {
-  return assert(
-    validator.isURL(url, { allow_protocol_relative_urls: true }),
-    `${url} is not a valid url`
+  expect(validator.isURL(url, { allow_protocol_relative_urls: true })).toBe(
+    true
   );
 }
 
 function assertValidApp(app) {
-  assert.isString(app.appId);
-  assert.isString(app.title);
-  assert.isString(app.summary);
+  expect(app.appId).toBeTypeOf('string');
+  expect(app.title).toBeTypeOf('string');
+  expect(app.summary).toBeTypeOf('string');
   assertValidUrl(app.url);
   assertValidUrl(app.icon);
 
   if (app.score !== undefined) {
     // would fail for new apps without score
-    assert.isNumber(app.score);
-    assert(app.score >= 0);
-    assert(app.score <= 5);
+    expect(app.score).toBeTypeOf('number');
+    expect(app.score >= 0).toBe(true);
+    expect(app.score <= 5).toBe(true);
   }
 
-  assert.isBoolean(app.free);
+  expect(app.free).toBeTypeOf('boolean');
 
   // FIXME this is only allowed for preregister, check for that when field is available
   if (app.priceText !== undefined) {
-    assert.isString(app.priceText);
+    expect(app.priceText).toBeTypeOf('string');
   }
 
   return app;
 }
 
 function assertIdsInArray(apps, ...ids) {
-  assert.isTrue(ids.every((id) => apps.some((app) => app.appId === id)));
+  expect(ids.every((id) => apps.some((app) => app.appId === id))).toBe(true);
 }
 
 export { assertValidUrl, assertValidApp, assertIdsInArray };

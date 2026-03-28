@@ -1,87 +1,85 @@
-import { assert } from 'chai';
+import { describe, it, expect } from 'vitest';
 import validator from 'validator';
 import { assertValidUrl } from './common.js';
 import gplay from '../index.js';
 
 const validateAppDetails = (app) => {
-  assert.equal(app.appId, 'com.sgn.pandapop.gp');
+  expect(app.appId).toBe('com.sgn.pandapop.gp');
   assertValidUrl(app.icon);
 
-  assert.isBoolean(app.isAvailableInPlayPass);
+  expect(app.isAvailableInPlayPass).toBeTypeOf('boolean');
 
-  assert.isNumber(app.score);
-  assert(app.score > 0);
-  assert(app.score <= 5);
+  expect(app.score).toBeTypeOf('number');
+  expect(app.score > 0).toBe(true);
+  expect(app.score <= 5).toBe(true);
 
-  assert.isNumber(app.minInstalls);
-  assert.isNumber(app.reviews);
+  expect(app.minInstalls).toBeTypeOf('number');
+  expect(app.reviews).toBeTypeOf('number');
 
-  assert.isString(app.summary);
-  assert.isString(app.description);
-  assert.isString(app.descriptionHTML);
-  assert.isString(app.released);
-  assert.equal(app.genreId, 'GAME_PUZZLE');
+  expect(app.summary).toBeTypeOf('string');
+  expect(app.description).toBeTypeOf('string');
+  expect(app.descriptionHTML).toBeTypeOf('string');
+  expect(app.released).toBeTypeOf('string');
+  expect(app.genreId).toBe('GAME_PUZZLE');
 
-  assert.isArray(app.categories);
-  assert.isAbove(app.categories.length, 1);
-  assert.equal(app.categories[0].id, 'GAME_PUZZLE');
-  assert.notEqual(app.categories[1].id, 'GAME_PUZZLE');
-  assert.hasAllKeys(app.categories[0], ['name', 'id']);
+  expect(Array.isArray(app.categories)).toBe(true);
+  expect(app.categories.length).toBeGreaterThan(1);
+  expect(app.categories[0].id).toBe('GAME_PUZZLE');
+  expect(app.categories[1].id).not.toBe('GAME_PUZZLE');
+  expect(Object.keys(app.categories[0]).sort()).toEqual(['id', 'name'].sort());
 
-  assert.isString(app.version);
+  expect(app.version).toBeTypeOf('string');
   if (app.size) {
-    assert.isString(app.size);
+    expect(app.size).toBeTypeOf('string');
   }
-  assert.isString(app.contentRating);
+  expect(app.contentRating).toBeTypeOf('string');
 
-  assert.equal(app.androidVersion, '7.0');
-  assert.equal(app.androidMaxVersion, 'VARY');
+  expect(app.androidVersion).toBe('7.0');
+  expect(app.androidMaxVersion).toBe('VARY');
 
-  assert.isBoolean(app.available);
-  assert.equal(app.priceText, 'Free');
-  assert.equal(app.price, 0);
-  assert.isTrue(app.free);
-  assert.isTrue(app.offersIAP);
-  assert.isString(app.IAPRange);
-  assert.isFalse(app.preregister);
-  assert.isFalse(app.earlyAccessEnabled);
-  assert.isUndefined(app.originalPrice);
-  assert.isUndefined(app.discountEndDate);
+  expect(app.available).toBeTypeOf('boolean');
+  expect(app.priceText).toBe('Free');
+  expect(app.price).toBe(0);
+  expect(app.free).toBe(true);
+  expect(app.offersIAP).toBe(true);
+  expect(app.IAPRange).toBeTypeOf('string');
+  expect(app.preregister).toBe(false);
+  expect(app.earlyAccessEnabled).toBe(false);
+  expect(app.originalPrice).toBeUndefined();
+  expect(app.discountEndDate).toBeUndefined();
 
-  assert.equal(app.developer, 'Jam City, Inc.');
-  assert.equal(app.developerId, '5509190841173705883');
-  assert.equal(app.developerInternalID, '5509190841173705883');
+  expect(app.developer).toBe('Jam City, Inc.');
+  expect(app.developerId).toBe('5509190841173705883');
+  expect(app.developerInternalID).toBe('5509190841173705883');
   assertValidUrl(app.developerWebsite);
-  assert(
-    validator.isEmail(app.developerEmail),
-    `${app.developerEmail} is not an email`
-  );
+  expect(validator.isEmail(app.developerEmail)).toBe(true);
 
   assertValidUrl(app.video);
   assertValidUrl(app.previewVideo);
-  ['1', '2', '3', '4', '5'].map((v) => assert.property(app.histogram, v));
+  ['1', '2', '3', '4', '5'].forEach((v) =>
+    expect(app.histogram).toHaveProperty(v)
+  );
 
-  assert(app.screenshots.length);
+  expect(app.screenshots.length).toBeGreaterThan(0);
   app.screenshots.map(assertValidUrl);
 
-  assert.isArray(app.comments);
+  expect(Array.isArray(app.comments)).toBe(true);
   // Comments may not always be available, so we'll just check the array type
   if (app.comments.length > 0) {
-    app.comments.map(assert.isString);
+    app.comments.forEach((c) => expect(c).toBeTypeOf('string'));
   }
 
-  assert.isString(app.recentChanges);
+  expect(app.recentChanges).toBeTypeOf('string');
 };
 
 describe('App method', () => {
   it('should fetch valid application data', () => {
     return gplay.app({ appId: 'com.sgn.pandapop.gp' }).then((app) => {
-      assert.equal(
-        app.url,
+      expect(app.url).toBe(
         'https://play.google.com/store/apps/details?id=com.sgn.pandapop.gp&hl=en&gl=us'
       );
-      assert.equal(app.genre, 'Puzzle');
-      assert.equal(app.androidVersionText, '7.0');
+      expect(app.genre).toBe('Puzzle');
+      expect(app.androidVersionText).toBe('7.0');
       validateAppDetails(app);
     });
   });
@@ -94,13 +92,12 @@ describe('App method', () => {
         lang: 'es',
       })
       .then((app) => {
-        assert.equal(
-          app.url,
+        expect(app.url).toBe(
           'https://play.google.com/store/apps/details?id=com.sgn.pandapop.gp&hl=es&gl=es'
         );
-        assert.equal(app.genre, 'Puzles');
-        assert.equal(app.androidVersionText, '7.0');
-        assert.equal(app.available, true);
+        expect(app.genre).toBe('Puzles');
+        expect(app.androidVersionText).toBe('7.0');
+        expect(app.available).toBe(true);
         validateAppDetails(app);
       });
   });
@@ -113,34 +110,33 @@ describe('App method', () => {
         lang: 'pt',
       })
       .then((app) => {
-        assert.equal(
-          app.url,
+        expect(app.url).toBe(
           'https://play.google.com/store/apps/details?id=com.sgn.pandapop.gp&hl=pt&gl=br'
         );
-        assert.equal(app.genre, 'Quebra-cabeças');
-        assert.equal(app.androidVersionText, '7.0');
-        assert.equal(app.available, true);
+        expect(app.genre).toBe('Quebra-cabeças');
+        expect(app.androidVersionText).toBe('7.0');
+        expect(app.available).toBe(true);
         validateAppDetails(app);
       });
   });
 
   it('should check the developer legal information from the "About the developer" section', () => {
     return gplay.app({ appId: 'com.soundcloud.android' }).then((app) => {
-      assert.isString(app.developerLegalName);
-      assert.match(app.developerLegalName, /SoundCloud/i);
-      assert.isString(app.developerLegalEmail);
-      assert.match(app.developerLegalEmail, /@soundcloud\.com$/i);
-      assert.isString(app.developerLegalAddress);
-      assert.match(app.developerLegalAddress, /Berlin|Germany/i);
-      assert.isString(app.developerLegalPhoneNumber);
-      assert.match(app.developerLegalPhoneNumber, /^\+[\d\s-]+$/);
+      expect(app.developerLegalName).toBeTypeOf('string');
+      expect(app.developerLegalName).toMatch(/SoundCloud/i);
+      expect(app.developerLegalEmail).toBeTypeOf('string');
+      expect(app.developerLegalEmail).toMatch(/@soundcloud\.com$/i);
+      expect(app.developerLegalAddress).toBeTypeOf('string');
+      expect(app.developerLegalAddress).toMatch(/Berlin|Germany/i);
+      expect(app.developerLegalPhoneNumber).toBeTypeOf('string');
+      expect(app.developerLegalPhoneNumber).toMatch(/^\+[\d\s-]+$/);
     });
   });
 
   it('should properly parse a VARY android version', () => {
     return gplay.app({ appId: 'com.facebook.katana' }).then((app) => {
-      assert.equal(app.androidVersion, 'VARY');
-      assert.equal(app.androidVersionText, 'Varies with device');
+      expect(app.androidVersion).toBe('VARY');
+      expect(app.androidVersionText).toBe('Varies with device');
     });
   });
 
@@ -150,18 +146,18 @@ describe('App method', () => {
       // The exact address may change over time, so we just verify it exists
       // Some apps may not have a developer address, so we check if it exists
       if (app.developerAddress) {
-        assert.isString(app.developerAddress);
-        assert.isTrue(app.developerAddress.length > 0);
+        expect(app.developerAddress).toBeTypeOf('string');
+        expect(app.developerAddress.length > 0).toBe(true);
       } else {
         // If no address is available, that's also valid
-        assert.isUndefined(app.developerAddress);
+        expect(app.developerAddress).toBeUndefined();
       }
     });
   });
 
   it('should get the privacy policy', () => {
     return gplay.app({ appId: 'com.snapchat.android' }).then((app) => {
-      assert.equal(app.privacyPolicy, 'http://www.snapchat.com/privacy');
+      expect(app.privacyPolicy).toBe('http://www.snapchat.com/privacy');
     });
   });
 
@@ -169,16 +165,15 @@ describe('App method', () => {
     return gplay
       .app({ appId: 'com.sgn.pandapop.gp', lang: 'es', country: 'ar' })
       .then((app) => {
-        assert.equal(app.appId, 'com.sgn.pandapop.gp');
-        assert.equal(app.title, 'Bubble Shooter: Panda Pop!');
-        assert.equal(
-          app.url,
+        expect(app.appId).toBe('com.sgn.pandapop.gp');
+        expect(app.title).toBe('Bubble Shooter: Panda Pop!');
+        expect(app.url).toBe(
           'https://play.google.com/store/apps/details?id=com.sgn.pandapop.gp&hl=es&gl=ar'
         );
-        assert.isNumber(app.minInstalls);
+        expect(app.minInstalls).toBeTypeOf('number');
 
-        assert.equal(app.androidVersion, '7.0');
-        assert.equal(app.androidVersionText, '7.0');
+        expect(app.androidVersion).toBe('7.0');
+        expect(app.androidVersionText).toBe('7.0');
       });
   });
 
@@ -186,37 +181,28 @@ describe('App method', () => {
     gplay
       .app({ appId: 'com.sgn.pandapop.gp', lang: 'fr', country: 'fr' })
       .then((app) => {
-        assert.equal(app.appId, 'com.sgn.pandapop.gp');
-        assert.equal(app.title, 'Panda Pop! Jeu de tir à bulles');
-        assert.equal(
-          app.url,
+        expect(app.appId).toBe('com.sgn.pandapop.gp');
+        expect(app.title).toBe('Panda Pop! Jeu de tir à bulles');
+        expect(app.url).toBe(
           'https://play.google.com/store/apps/details?id=com.sgn.pandapop.gp&hl=fr&gl=fr'
         );
-        assert.isNumber(app.minInstalls);
+        expect(app.minInstalls).toBeTypeOf('number');
 
-        assert.equal(app.androidVersion, '7.0');
-        assert.equal(app.androidVersionText, '7.0');
+        expect(app.androidVersion).toBe('7.0');
+        expect(app.androidVersionText).toBe('7.0');
       }));
 
-  it('should reject the promise for an invalid appId', () =>
-    gplay
-      .app({ appId: 'com.dxco.pandavszombiesasdadad' })
-      .then(() => {
-        throw Error('should not resolve');
-      })
-      .catch((err) => {
-        assert.equal(err.message, 'App not found (404)');
-      }));
+  it('should reject the promise for an invalid appId', async () => {
+    await expect(
+      gplay.app({ appId: 'com.dxco.pandavszombiesasdadad' })
+    ).rejects.toMatchObject({ message: 'App not found (404)' });
+  });
 
-  it('should reject the promise when appId is not passed', () =>
-    gplay
-      .app({ Testkey: 'com.dxco.pandavszombiesasdadad' })
-      .then(() => {
-        throw Error('should not resolve');
-      })
-      .catch((err) => {
-        assert.equal(err.message, 'appId missing');
-      }));
+  it('should reject the promise when appId is not passed', async () => {
+    await expect(
+      gplay.app({ Testkey: 'com.dxco.pandavszombiesasdadad' })
+    ).rejects.toMatchObject({ message: 'appId missing' });
+  });
 
   it('should fetch PriceText for paid apps properly', () => {
     return gplay
@@ -224,15 +210,17 @@ describe('App method', () => {
       .then((app) => {
         const normalized = String(app.priceText).replace(/,/g, '');
         const match = normalized.match(/(\d+\.?\d*|\d*\.\d+)/);
-        assert.isNotNull(match, 'priceText should contain a numeric amount');
-        assert.closeTo(parseFloat(match[0]), app.price, 0.02);
-        assert.equal(app.currency, 'INR');
+        expect(match).not.toBeNull();
+        expect(Math.abs(parseFloat(match[0]) - app.price)).toBeLessThanOrEqual(
+          0.02
+        );
+        expect(app.currency).toBe('INR');
       });
   });
 
   it('should fetch valid internal developer_id, if it differs from developer_id', () => {
     return gplay.app({ appId: 'air.com.bitrhymes.bingo' }).then((app) => {
-      assert.equal(app.developerInternalID, '9028773071151690823');
+      expect(app.developerInternalID).toBe('9028773071151690823');
     });
   });
 
@@ -243,7 +231,7 @@ describe('App method', () => {
         country: 'tr',
       })
       .then((app) => {
-        assert.equal(app.available, false);
+        expect(app.available).toBe(false);
       });
   });
 
@@ -251,8 +239,8 @@ describe('App method', () => {
     return gplay.app({ appId: 'com.facebook.katana' }).then((app) => {
       // Using Facebook app instead as it's more likely to be available
       // Just check that android version info is present
-      assert.isString(app.androidVersion);
-      assert.isTrue(app.androidVersion.length > 0);
+      expect(app.androidVersion).toBeTypeOf('string');
+      expect(app.androidVersion.length > 0).toBe(true);
     });
   });
 });

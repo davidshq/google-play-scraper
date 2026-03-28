@@ -1,22 +1,22 @@
+import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
-import { assert } from 'chai';
 import { assertValidUrl } from './common.js';
 
 function assertValidDataSafetyObject() {
   return (entry) => {
-    assert.isString(entry.data);
-    assert.isString(entry.purpose);
-    assert.isString(entry.type);
-    assert.isBoolean(entry.optional);
+    expect(entry.data).toBeTypeOf('string');
+    expect(entry.purpose).toBeTypeOf('string');
+    expect(entry.type).toBeTypeOf('string');
+    expect(entry.optional).toBeTypeOf('boolean');
   };
 }
 
 describe('Data Safety method', () => {
   it('should return arrays of data shared, data collected, security practices and a privacy url', () =>
     gplay.datasafety({ appId: 'com.sgn.pandapop.gp' }).then((dataSafety) => {
-      assert.isArray(dataSafety.sharedData);
-      assert.isArray(dataSafety.collectedData);
-      assert.isArray(dataSafety.securityPractices);
+      expect(Array.isArray(dataSafety.sharedData)).toBe(true);
+      expect(Array.isArray(dataSafety.collectedData)).toBe(true);
+      expect(Array.isArray(dataSafety.securityPractices)).toBe(true);
       // privacyPolicyUrl might not always be available
       if (dataSafety.privacyPolicyUrl) {
         assertValidUrl(dataSafety.privacyPolicyUrl);
@@ -32,16 +32,16 @@ describe('Data Safety method', () => {
   it('should return a valid security practices object', () =>
     gplay.datasafety({ appId: 'com.sgn.pandapop.gp' }).then((dataSafety) => {
       dataSafety.securityPractices.forEach((practice) => {
-        assert.isString(practice.practice);
-        assert.isString(practice.description);
+        expect(practice.practice).toBeTypeOf('string');
+        expect(practice.description).toBeTypeOf('string');
       });
     }));
 
   it('should return empty return for non existing app', () =>
     gplay.datasafety({ appId: 'app.foo.bar' }).then((dataSafety) => {
-      assert.isEmpty(dataSafety.sharedData);
-      assert.isEmpty(dataSafety.collectedData);
-      assert.isEmpty(dataSafety.securityPractices);
-      assert.isUndefined(dataSafety.privacyPolicyUrl);
+      expect(dataSafety.sharedData).toHaveLength(0);
+      expect(dataSafety.collectedData).toHaveLength(0);
+      expect(dataSafety.securityPractices).toHaveLength(0);
+      expect(dataSafety.privacyPolicyUrl).toBeUndefined();
     }));
 });

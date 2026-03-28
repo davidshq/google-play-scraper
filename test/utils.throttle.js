@@ -1,28 +1,11 @@
 import requestLib from 'got';
 import throttled from '../lib/utils/throttle.js';
-import sinon from 'sinon';
-import { assert } from 'chai';
+import { describe, it, expect } from 'vitest';
 
-describe('Throttle tests', function () {
-  this.timeout(6000);
-  let server;
+describe('Throttle tests', () => {
+  const url = 'https://yesno.wtf/api';
 
-  // Create a fake http server to emulate http call and responses.
-  before(function () {
-    server = sinon.fakeServer.create();
-  });
-
-  // Remove any server responses added in current test suite.
-  after(function () {
-    server.restore();
-  });
-
-  const url = 'https://yesno.wtf/api'; // Fake url used in this test, it could be anything.
-
-  it('Should make three requests with 2000ms interval. (Throttle function)', function () {
-    // If we don't want to rely on the availability of a particular api we can use mocks.
-    // The fake server intercept http calls and return specified objects if it mach the same method/url.
-    server.respondWith('GET', url, JSON.stringify({ test: 'this works' }));
+  it('Should make three requests with 2000ms interval. (Throttle function)', () => {
     const req = throttled(requestLib, {
       limit: 1,
       interval: 2000,
@@ -35,10 +18,10 @@ describe('Throttle tests', function () {
         const firstAndSecondReq = dates[1] - dates[0];
         const secondAndThirdReq = dates[2] - dates[1];
 
-        assert.isAtLeast(firstAndSecondReq, 1000);
-        assert.isAtMost(firstAndSecondReq, 3000);
-        assert.isAtLeast(secondAndThirdReq, 1000);
-        assert.isAtMost(secondAndThirdReq, 3000);
+        expect(firstAndSecondReq).toBeGreaterThanOrEqual(1000);
+        expect(firstAndSecondReq).toBeLessThanOrEqual(3000);
+        expect(secondAndThirdReq).toBeGreaterThanOrEqual(1000);
+        expect(secondAndThirdReq).toBeLessThanOrEqual(3000);
       });
-  });
+  }, 6000);
 });

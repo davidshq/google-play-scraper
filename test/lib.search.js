@@ -1,4 +1,4 @@
-import { assert } from 'chai';
+import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
 import { assertValidApp, assertIdsInArray } from './common.js';
 
@@ -15,7 +15,9 @@ describe('Search method', () => {
         .search({
           term: 'com.google.android.gm',
         })
-        .then((apps) => apps.map((app) => assert.isString(app.developer)));
+        .then((apps) =>
+          apps.map((app) => expect(app.developer).toBeTypeOf('string'))
+        );
     });
 
     it('should fetch a valid application list with developerId property', () => {
@@ -23,22 +25,20 @@ describe('Search method', () => {
         .search({
           term: 'com.google.android.gm',
         })
-        .then((apps) => apps.map((app) => assert.isString(app.developerId)));
+        .then((apps) =>
+          apps.map((app) => expect(app.developerId).toBeTypeOf('string'))
+        );
     });
   });
 
   it('should filter by price when set to paid', () =>
     gplay.search({ term: 'game', num: 5, price: 'paid' }).then((apps) => {
-      assert.isAtLeast(apps.length, 1);
+      expect(apps.length).toBeGreaterThanOrEqual(1);
       const paidCount = apps.filter((app) => !app.free).length;
-      assert.isAtLeast(
-        paidCount,
-        Math.ceil(apps.length / 2),
-        'expected majority of paid-filter results to be non-free'
-      );
+      expect(paidCount).toBeGreaterThanOrEqual(Math.ceil(apps.length / 2));
     }));
 
-  it('should validate the results number', function () {
+  it('should validate the results number', () => {
     const count = 5;
     return gplay
       .search({
@@ -47,10 +47,7 @@ describe('Search method', () => {
       })
       .then((apps) => {
         apps.map(assertValidApp);
-        assert(
-          apps.length === count,
-          `should return ${count} items but ${apps.length} returned`
-        );
+        expect(apps.length).toBe(count);
       });
   });
 
@@ -61,29 +58,25 @@ describe('Search method', () => {
       .search({ term: 'preregister', num: 10 })
       .then((apps) => apps.map(assertValidApp)));
 
-  it('should search for pre register with fullDetail', () =>
-    gplay
-      .search({ term: 'preregister', num: 10, fullDetail: true })
-      .then((apps) => apps.map(assertValidApp))).timeout(5 * 1000);
+  it(
+    'should search for pre register with fullDetail',
+    () =>
+      gplay
+        .search({ term: 'preregister', num: 10, fullDetail: true })
+        .then((apps) => apps.map(assertValidApp)),
+    5 * 1000
+  );
 
   it('should fetch multiple pages of distinct results', () =>
     gplay.search({ term: 'p', num: 55 }).then((apps) => {
-      assert.isAtLeast(
-        apps.length,
-        30,
-        'should return at least first page (30)'
-      );
-      assert.isAtMost(apps.length, 55, 'should not exceed requested');
+      expect(apps.length).toBeGreaterThanOrEqual(30);
+      expect(apps.length).toBeLessThanOrEqual(55);
     }));
 
   it('should fetch multiple pages of when not starting from cluster of subsections', () =>
     gplay.search({ term: 'p', num: 65 }).then((apps) => {
-      assert.isAtLeast(
-        apps.length,
-        30,
-        'should return at least first page (30)'
-      );
-      assert.isAtMost(apps.length, 65, 'should not exceed requested');
+      expect(apps.length).toBeGreaterThanOrEqual(30);
+      expect(apps.length).toBeLessThanOrEqual(65);
     }));
 
   describe('country and language specific', () => {
@@ -111,11 +104,10 @@ describe('Search method', () => {
   describe('more results mapping', () => {
     it('should return few netflix apps', () => {
       return gplay.search({ term: 'netflix' }).then((apps) => {
-        assert.isAbove(apps.length, 0);
-        assert.isTrue(
-          apps.some((a) => a.title.toLowerCase().includes('netflix')),
-          'should include netflix-related apps'
-        );
+        expect(apps.length).toBeGreaterThan(0);
+        expect(
+          apps.some((a) => a.title.toLowerCase().includes('netflix'))
+        ).toBe(true);
       });
     });
 
@@ -123,24 +115,22 @@ describe('Search method', () => {
       return gplay
         .search({ term: 'netflix', lang: 'de', country: 'DE' })
         .then((apps) => {
-          assert.isAbove(apps.length, 1);
-          assert.isTrue(
-            apps.some((a) => a.title.toLowerCase().includes('netflix')),
-            'should include netflix-related apps'
-          );
+          expect(apps.length).toBeGreaterThan(1);
+          expect(
+            apps.some((a) => a.title.toLowerCase().includes('netflix'))
+          ).toBe(true);
         });
     });
 
     it('should return few google mail apps', () => {
       return gplay.search({ term: 'gmail' }).then((apps) => {
-        assert.isTrue(
+        expect(
           apps.some(
             (a) =>
               a.appId === 'com.google.android.gm' ||
               a.appId === 'com.google.android.gm.lite'
-          ),
-          'should include gmail app'
-        );
+          )
+        ).toBe(true);
       });
     });
 
@@ -153,19 +143,19 @@ describe('Search method', () => {
     it('should return empty set when no results found', () => {
       return gplay
         .search({ term: 'asdasdyxcnmjysalsaflaslf' })
-        .then(assert.isEmpty);
+        .then((apps) => expect(apps).toHaveLength(0));
     });
 
     it('should return empty set when no results found in eu country store', () => {
       return gplay
         .search({ term: 'ASyyDASDyyASDASD', country: 'DE', lang: 'SP' })
-        .then(assert.isEmpty);
+        .then((apps) => expect(apps).toHaveLength(0));
     });
 
     it('should return empty set when no results found in us store with other language', () => {
       return gplay
         .search({ term: 'ASyyDASDyyASDASD', country: 'US', lang: 'FR' })
-        .then(assert.isEmpty);
+        .then((apps) => expect(apps).toHaveLength(0));
     });
   });
 

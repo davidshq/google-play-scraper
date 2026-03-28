@@ -9,9 +9,10 @@ Node.js scraper for Google Play Store data. ES module (`"type": "module"`). Not 
 ## Commands
 
 ```bash
-npm test                          # Run all tests (mocha, 5s timeout)
+npm test                          # Run all tests (Vitest, 5s default timeout)
 npm test -- test/lib.app.js       # Run a single test file
-npm test -- --grep "pattern"      # Run tests matching pattern
+npm test -- -t "pattern"          # Run tests with titles matching pattern
+npm run test:watch                # Vitest watch mode
 npm run lint                      # ESLint with semistandard + Prettier
 npm run format                    # Format code with Prettier
 npm run format:check              # Check formatting without writing

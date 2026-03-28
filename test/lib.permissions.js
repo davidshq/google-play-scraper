@@ -1,13 +1,13 @@
+import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
-import { assert } from 'chai';
 
 describe('Permissions method', () => {
   it('should return an array of permissions and descriptions', () =>
     gplay.permissions({ appId: 'com.sgn.pandapop.gp' }).then((results) => {
-      assert(results.length);
+      expect(results.length).toBeGreaterThan(0);
       results.forEach((perm) => {
-        assert.isString(perm.permission);
-        assert.isString(perm.type);
+        expect(perm.permission).toBeTypeOf('string');
+        expect(perm.type).toBeTypeOf('string');
       });
     }));
 
@@ -16,10 +16,10 @@ describe('Permissions method', () => {
       .permissions({ appId: 'air.tv.ingames.cubematch.free' })
       .then((results) => {
         // Some apps may not have permissions, so just check the return type
-        assert.isArray(results);
+        expect(Array.isArray(results)).toBe(true);
         results.forEach((perm) => {
-          assert.isString(perm.permission);
-          assert.isString(perm.type);
+          expect(perm.permission).toBeTypeOf('string');
+          expect(perm.type).toBeTypeOf('string');
         });
       }));
 
@@ -27,8 +27,8 @@ describe('Permissions method', () => {
     gplay
       .permissions({ appId: 'com.sgn.pandapop.gp', short: true })
       .then((results) => {
-        assert(results.length);
-        results.map(assert.isString);
+        expect(results.length).toBeGreaterThan(0);
+        results.forEach((s) => expect(s).toBeTypeOf('string'));
       }));
 
   it('should return skip descriptions if short option is passed for different response format', () =>
@@ -36,8 +36,8 @@ describe('Permissions method', () => {
       .permissions({ appId: 'air.tv.ingames.cubematch.free', short: true })
       .then((results) => {
         // Some apps may not have permissions, so just check the return type
-        assert.isArray(results);
-        results.map(assert.isString);
+        expect(Array.isArray(results)).toBe(true);
+        results.forEach((s) => expect(s).toBeTypeOf('string'));
       }));
 
   it('should return even if app have no common permissions', () =>
@@ -45,10 +45,10 @@ describe('Permissions method', () => {
       .permissions({ appId: 'com.skybornegames.battlepop' })
       .then((results) => {
         // Some apps may not have permissions, so just check the return type
-        assert.isArray(results);
+        expect(Array.isArray(results)).toBe(true);
         results.forEach((perm) => {
-          assert.isString(perm.permission);
-          assert.isString(perm.type);
+          expect(perm.permission).toBeTypeOf('string');
+          expect(perm.type).toBeTypeOf('string');
         });
       }));
 
@@ -56,6 +56,6 @@ describe('Permissions method', () => {
     gplay
       .permissions({ appId: 'com.skybornegames.battlepop', short: true })
       .then((results) => {
-        assert.equal(0, results.length);
+        expect(results.length).toBe(0);
       }));
 });

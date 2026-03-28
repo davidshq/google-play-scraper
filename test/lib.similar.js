@@ -1,4 +1,4 @@
-import { assert } from 'chai';
+import { describe, it, expect } from 'vitest';
 import gplay from '../index.js';
 import { assertValidApp } from './common.js';
 
@@ -10,10 +10,10 @@ describe('Similar method', () => {
   });
 
   it('should fetch games from different developers', () => {
-    return gplay
-      .similar({ appId: 'com.instagram.android' })
-      .then((apps) =>
-        assert.isTrue(apps.some((app) => app.developer !== apps[0].developer))
+    return gplay.similar({ appId: 'com.instagram.android' }).then((apps) => {
+      expect(apps.some((app) => app.developer !== apps[0].developer)).toBe(
+        true
       );
+    });
   });
 });
