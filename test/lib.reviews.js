@@ -3,7 +3,7 @@ import { assert } from 'chai';
 import { assertValidUrl } from './common.js';
 import { constants } from '../lib/constants.js';
 
-function assertValid (review) {
+function assertValid(review) {
   assert.isString(review.id);
   assert(review.id);
   assert.isString(review.userName);
@@ -27,53 +27,59 @@ function assertValid (review) {
 
 describe('Reviews method', () => {
   it('should retrieve the most recent reviews of an app', () => {
-    return gplay.reviews({ appId: 'com.dxco.pandavszombies' })
+    return gplay
+      .reviews({ appId: 'com.dxco.pandavszombies' })
       .then((reviews) => {
         reviews.data.map(assertValid);
       });
   });
 
   it('should retrieve the most helpfull reviews of an app', () => {
-    return gplay.reviews({
-      appId: 'com.dxco.pandavszombies',
-      sort: constants.sort.HELPFULNESS
-    })
+    return gplay
+      .reviews({
+        appId: 'com.dxco.pandavszombies',
+        sort: constants.sort.HELPFULNESS,
+      })
       .then((reviews) => {
         reviews.data.map(assertValid);
       });
   });
 
   it('should retrieve the most rated reviews of an app', () => {
-    return gplay.reviews({
-      appId: 'com.dxco.pandavszombies',
-      sort: constants.sort.RATING
-    })
+    return gplay
+      .reviews({
+        appId: 'com.dxco.pandavszombies',
+        sort: constants.sort.RATING,
+      })
       .then((reviews) => {
         reviews.data.map(assertValid);
       });
   });
 
   it('should validate the sort', () => {
-    return gplay.reviews({
-      appId: 'com.dxco.pandavszombies',
-      sort: 'invalid'
-    })
+    return gplay
+      .reviews({
+        appId: 'com.dxco.pandavszombies',
+        sort: 'invalid',
+      })
       .then(assert.fail)
       .catch((e) => assert.equal(e.message, 'Invalid sort invalid'));
   });
 
   it('should retrieve the reviews of an app in Japanese', () => {
-    return gplay.reviews({ appId: 'com.dxco.pandavszombies', lang: 'ja' })
+    return gplay
+      .reviews({ appId: 'com.dxco.pandavszombies', lang: 'ja' })
       .then((reviews) => {
         reviews.data.map(assertValid);
       });
   });
 
   it('should accept pagination', () => {
-    return gplay.reviews({
-      appId: 'com.facebook.katana',
-      paginate: true
-    })
+    return gplay
+      .reviews({
+        appId: 'com.facebook.katana',
+        paginate: true,
+      })
       .then((reviews) => {
         reviews.data.map(assertValid);
         assert.equal(reviews.data.length, 150);
@@ -84,7 +90,7 @@ describe('Reviews method', () => {
   it('should get different reviews for nextPageToken', async () => {
     const firstPageReviews = await gplay.reviews({
       appId: 'com.facebook.katana',
-      paginate: true
+      paginate: true,
     });
     const { data, nextPaginationToken } = firstPageReviews;
 
@@ -94,9 +100,10 @@ describe('Reviews method', () => {
     const secondPageReviews = await gplay.reviews({
       appId: 'com.facebook.katana',
       paginate: true,
-      nextPaginationToken
+      nextPaginationToken,
     });
-    const { data: dataSecondPage, nextPaginationToken: secondPaginationToken } = secondPageReviews;
+    const { data: dataSecondPage, nextPaginationToken: secondPaginationToken } =
+      secondPageReviews;
 
     assert.equal(dataSecondPage.length, 150);
     assert.isNotNull(secondPaginationToken);
@@ -109,7 +116,7 @@ describe('Reviews method', () => {
     const firstPageReviews = await gplay.reviews({
       appId: 'com.facebook.katana',
       num: numReviews,
-      sort: constants.sort.HELPFULNESS
+      sort: constants.sort.HELPFULNESS,
     });
     const { data } = firstPageReviews;
 
@@ -118,7 +125,7 @@ describe('Reviews method', () => {
     const secondPageReviews = await gplay.reviews({
       appId: 'com.facebook.katana',
       num: numReviews,
-      sort: constants.sort.HELPFULNESS
+      sort: constants.sort.HELPFULNESS,
     });
     const { data: dataSecondPage } = secondPageReviews;
 

@@ -5,23 +5,30 @@ import validator from 'validator';
 
 describe('Developer method', () => {
   it('should fetch a valid application list for the given developer with string id', () => {
-    return gplay.developer({ devId: 'Jam City, Inc.' })
+    return gplay
+      .developer({ devId: 'Jam City, Inc.' })
       .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.map((app) => assert.equal(app.developer, 'Jam City, Inc.')));
+      .then((apps) =>
+        apps.map((app) => assert.equal(app.developer, 'Jam City, Inc.'))
+      );
   });
 
   it('should fetch a valid application list for the given developer with numeric id', () => {
-    return gplay.developer({ devId: '5700313618786177705' })
+    return gplay
+      .developer({ devId: '5700313618786177705' })
       .then((apps) => apps.map(assertValidApp))
-      .then((apps) => apps.forEach((app) => {
-        if (app.developerId) {
-          assert.equal(app.developerId, '5700313618786177705');
-        }
-      }));
+      .then((apps) =>
+        apps.forEach((app) => {
+          if (app.developerId) {
+            assert.equal(app.developerId, '5700313618786177705');
+          }
+        })
+      );
   });
 
   it('should not throw an error if too many apps requested', () => {
-    return gplay.developer({ devId: '5700313618786177705', num: 500 })
+    return gplay
+      .developer({ devId: '5700313618786177705', num: 500 })
       .then((apps) => {
         // Just check that we get some apps, not a specific number
         // The number of available apps may change over time
@@ -30,7 +37,8 @@ describe('Developer method', () => {
   });
 
   it('should fetch a valid application list with full detail', () => {
-    return gplay.developer({ devId: '5700313618786177705', num: 10, fullDetail: true })
+    return gplay
+      .developer({ devId: '5700313618786177705', num: 10, fullDetail: true })
       .then((apps) => {
         apps.forEach((app) => {
           assert.isNumber(app.minInstalls);
@@ -61,9 +69,14 @@ describe('Developer method', () => {
           if (app.developerWebsite) {
             assertValidUrl(app.developerWebsite);
           }
-          assert(validator.isEmail(app.developerEmail), `${app.developerEmail} is not an email`);
+          assert(
+            validator.isEmail(app.developerEmail),
+            `${app.developerEmail} is not an email`
+          );
 
-          ['1', '2', '3', '4', '5'].map((v) => assert.property(app.histogram, v));
+          ['1', '2', '3', '4', '5'].map((v) =>
+            assert.property(app.histogram, v)
+          );
           app.screenshots.map(assertValidUrl);
           app.comments.map(assert.isString);
         });

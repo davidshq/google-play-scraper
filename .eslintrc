@@ -4,11 +4,12 @@
     "mocha": true,
     "node": true
   },
-  "extends": "semistandard",
+  "extends": ["semistandard", "plugin:prettier/recommended"],
   "plugins": [
     "standard"
   ],
   "rules": {
-    "no-unused-vars": [2, { "vars": "all", "args": "after-used" }]
+    "no-unused-vars": [2, { "vars": "all", "args": "after-used" }],
+    "prettier/prettier": "warn"
   }
 }

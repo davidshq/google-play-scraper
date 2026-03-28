@@ -23,16 +23,19 @@ const methods = {
   similar,
   permissions,
   datasafety,
-  categories
+  categories,
 };
 
-function memoized (opts) {
-  const cacheOpts = Object.assign({
-    primitive: true,
-    normalizer: JSON.stringify,
-    maxAge: 1000 * 60 * 5, // cache for 5 minutes
-    max: 1000 // save up to 1k results to avoid memory issues
-  }, opts);
+function memoized(opts) {
+  const cacheOpts = Object.assign(
+    {
+      primitive: true,
+      normalizer: JSON.stringify,
+      maxAge: 1000 * 60 * 5, // cache for 5 minutes
+      max: 1000, // save up to 1k results to avoid memory issues
+    },
+    opts
+  );
 
   // need to rebuild the methods so they all share the same memoized appMethod
   const doMemoize = (fn) => memoizee(fn, cacheOpts);
@@ -47,12 +50,14 @@ function memoized (opts) {
     similar,
     permissions,
     datasafety,
-    categories
+    categories,
   };
 
-  return Object.assign({ app: mAppMethod },
+  return Object.assign(
+    { app: mAppMethod },
     constants,
-    R.map(doMemoize, otherMethods));
+    R.map(doMemoize, otherMethods)
+  );
 }
 
 export default Object.assign({ memoized }, constants, methods);
