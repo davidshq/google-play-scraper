@@ -38,6 +38,14 @@ CI runs lint and tests on Node 20/22 (Vitest 4 requires Node ≥ 20) (tests retr
 
 **Throttling** (`lib/utils/throttle.js`): Decorator pattern — wraps the request function with a sliding-window rate limiter (configurable slots/interval).
 
+## Examples (`examples/`)
+
+Runnable demo scripts for maintainers and local experiments; they import `../index.js` from the repo root. **`examples/output/`** is in `.gitignore` for generated JSON (scripts default to writing next to themselves unless `OUTPUT` points elsewhere).
+
+- **`top100.js`**: `gplay.list()` with `num: 100`, `category: APPLICATION`, `throttle: 5`. Env: `COLLECTION`, `COUNTRY`, `LANG`, `OUTPUT`.
+- **`enriched-chart.js`**: Chart via `list()`, then `app()` per row; optional `permissions()` / `datasafety()` when `INCLUDE_EXTRA=1`. Env: `COLLECTION`, `COUNTRY`, `NUM`, `THROTTLE`, `INCLUDE_EXTRA`, `PARALLEL`, `OUTPUT`, and **`HL` or `PLAY_LANG`** for store language (avoid shell `LANG`, which is often `en_US.UTF-8`).
+- **`strip-unicode-line-terminators.js`**: Exported helper — recursively replaces U+2028/U+2029 in strings before `JSON.stringify` for stable on-disk JSON.
+
 ## Code Style
 
 - Formatting via Prettier; ESLint uses `@eslint/js` recommended (no style preset beyond that)

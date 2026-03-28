@@ -685,3 +685,22 @@ gplay.search({ term: 'panda', throttle: 10 }).then(console.log);
 ```
 
 By default, no throttling is applied.
+
+## Examples
+
+The repository ships optional scripts in [`examples/`](examples/) (they are not part of the published npm package). Run them from the **repository root** after `npm install`.
+
+| Script | What it does |
+|--------|----------------|
+| [`examples/top100.js`](examples/top100.js) | Fetches 100 apps from a Play chart via [`list()`](#list) (default collection `TOP_FREE`, category `APPLICATION`), writes JSON, and prints a numbered list. Uses `throttle: 5`. |
+| [`examples/enriched-chart.js`](examples/enriched-chart.js) | Fetches a chart, then calls [`app()`](#app) for each row (and optionally [`permissions()`](#permissions) and [`datasafety()`](#datasafety)). Chart size, throttling, and sequential vs parallel enrichment are controlled with environment variables documented in the file header. |
+| [`examples/strip-unicode-line-terminators.js`](examples/strip-unicode-line-terminators.js) | Small helper used by the scripts above: replaces U+2028/U+2029 in nested data so JSON files do not trigger “line separator” warnings in some editors. |
+
+Typical invocations:
+
+```bash
+node examples/top100.js
+node examples/enriched-chart.js
+```
+
+Use the `OUTPUT` environment variable (and other vars described in each script) to change paths and behavior. If you write artifacts under `examples/output/`, that directory is gitignored so generated JSON is not committed by default.

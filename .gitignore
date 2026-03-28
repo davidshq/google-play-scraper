@@ -32,3 +32,6 @@ node_modules
 .nyc_output
 
 .vscode
+
+# Example scripts — generated JSON and other output
+examples/output/
