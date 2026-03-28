@@ -13,12 +13,12 @@ npm test                          # Run all tests (Vitest, 5s default timeout)
 npm test -- test/lib.app.js       # Run a single test file
 npm test -- -t "pattern"          # Run tests with titles matching pattern
 npm run test:watch                # Vitest watch mode
-npm run lint                      # ESLint with semistandard + Prettier
+npm run lint                      # ESLint 9 flat (@eslint/js recommended + Prettier)
 npm run format                    # Format code with Prettier
 npm run format:check              # Check formatting without writing
 ```
 
-CI runs lint and tests on Node 18/20/22 (tests retried up to 3× for Play Store flakiness). `npm audit --audit-level=critical` must pass (blocks the job on critical issues only).
+CI runs lint and tests on Node 20/22 (Vitest 4 requires Node ≥ 20) (tests retried up to 3× for Play Store flakiness). `npm audit --audit-level=critical` must pass (blocks the job on critical issues only).
 
 ## Architecture
 
@@ -40,7 +40,7 @@ CI runs lint and tests on Node 18/20/22 (tests retried up to 3× for Play Store 
 
 ## Code Style
 
-- Semicolons required (semistandard)
+- Formatting via Prettier; ESLint uses `@eslint/js` recommended (no style preset beyond that)
 - 2-space indentation, LF line endings, UTF-8
 - Heavy use of Ramda (`R.path`, `R.map`, `R.assoc`, `R.partial`)
 - All async code is Promise-based (no async/await in the codebase)
